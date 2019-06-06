@@ -59,7 +59,7 @@ export class Server {
 
         console.log(username + ' and the ' + password);
 
-        connection.query('SELECT * FROM users WHERE password = ' + password + ' and username = ' + username, function (err, rows, fields) {
+        connection.query('SELECT * FROM users WHERE password = ' + password + ' and name = ' + username, function (err, rows, fields) {
             if (err) {
                 throw err;
             }
@@ -69,7 +69,7 @@ export class Server {
                     console.log('The solution is: ' + rows[0].uuid);
                     var uuid = uuid4();
                     var uuids = "'" + uuid + "'";
-                    connection.query('UPDATE users SET uuid = ' + uuids + ' where username = ' + username + ' and password = ' + password, function (err1, rows1, fields) {
+                    connection.query('UPDATE users SET uuid = ' + uuids + ' where name = ' + username + ' and password = ' + password, function (err1, rows1, fields) {
                         if (err1) {
                             throw err1;
                         }
@@ -80,7 +80,7 @@ export class Server {
                     });
                 }
                 else {
-                    res.send(400, "Login failed.");
+                    res.status(400).send("Login failed.");
                 }
             }
         });
