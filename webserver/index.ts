@@ -1,7 +1,14 @@
 import * as express from "express";
 import * as path from "path";
 import * as uuid4 from "uuidv4";
-// import * as CJSON from "circular-json";
+import * as mysql from 'mysql';
+
+var connection = mysql.createConnection({
+    host: 'localhost',
+    user: 'root',
+    password: '',
+    database: 'smarthomedb' ////Hier den namen der DB eintragen!
+});
 
 export class Server {
     public app: express.Application;
@@ -10,12 +17,13 @@ export class Server {
     constructor() {
         this.app = express();
         this.dateTime = new Date();
+        connection.connect();
 
-        this.app.use(express.static(path.join(__dirname, "SmartHomeUI/dist/pong")));  // http://expressjs.com/en/starter/static-files.html
-        // this.app.use(this.logRequest.bind(this));                              // http://expressjs.com/en/guide/writing-middleware.html
-        // this.app.use(this.authorize.bind(this));
-        // this.app.use("/revalidate/:token", this.logInStillValid.bind(this));
-        // this.app.get("/login/:usr.:pwd", this.loginRequest.bind(this));
+        this.app.use(express.static(path.join(__dirname, "SmartHomeUI/dist/SmartHomeUI")));  // http://expressjs.com/en/starter/static-files.html
+        this.app.use(this.logRequest.bind(this));                              // http://expressjs.com/en/guide/writing-middleware.html
+        //this.app.use(this.authorize.bind(this));
+        //this.app.use("/revalidate/:token", this.logInStillValid.bind(this));
+        this.app.get("/login/:usr.:pwd", this.loginRequest.bind(this));
         // this.app.get("/register/:usr.:pwd", this.registerRequest.bind(this));
         // this.app.get("/logout", this.logoutRequest.bind(this));
         // this.app.get("/submitscore/:score.:message", this.newScoreRequest.bind(this));
@@ -37,21 +45,45 @@ export class Server {
     //     res.send(404);
     // }
 
-    // // Checks if users is registered and sends new uuid.
-    // private loginRequest(req: express.Request, res: express.Response) {
-    //     const username = req.params.usr;
-    //     const password = req.params.pwd;
+    // Checks if users is registered and sends new uuid.
+    private loginRequest(req: express.Request, res: express.Response) {
+        const username = req.params.usr;
+        const password = req.params.pwd;
 
-    //     for (const user of this.registeredUsers) {
-    //         if (user.username === username && user.password === password) {
-    //             user.uuid = uuid4();
-    //             res.send(user.uuid);
-    //             return;
-    //         }
-    //     }
+        // CREATE TABLE users(
+        //     username varchar(255) not null,
+        //     password varchar(255) not null,
+        //     userid int not null AUTO_INCREMENT,
+        //     uuid varchar(255)
+        // ) ENGINE = storage_engine
 
-    //     res.send(400, "Login failed.");
-    // }
+        console.log(username + ' and the ' + password);
+
+        connection.query('SELECT * FROM users WHERE password = \'' + password + "\' and username = \'" + username + '\'', function (err, rows, fields) {
+            if (err) {
+                throw err;
+            }
+            else {
+                if (rows.length == 1) {
+                    console.log('The solution is: ' + rows[0].uuid);
+                    var uuid = uuid4();
+                    connection.query('UPDATE users SET uuid = \'' + uuid + '\' where username = \'' + username + '\' and password = \'' + password + '\'', function (err1, rows1, fields) {
+                        if (err1) {
+                            throw err1;
+                        }
+                        else {
+                            res.send(uuid);
+                            return;
+                        }
+                    });
+                }
+                else {
+                    res.send(400, "Login failed.");
+                }
+            }
+        });
+        //connection.end();
+    }
 
     // // For every request checking the valid token.
     // private authorize(req: express.Request, res: express.Response, next: express.NextFunction) {
@@ -163,10 +195,10 @@ export class Server {
     //     return finalDate;
     // }
 
-    // private logRequest(req: express.Request, res: express.Response, next: express.NextFunction) {
-    //     console.log(req.url);
-    //     next();
-    // }
+    private logRequest(req: express.Request, res: express.Response, next: express.NextFunction) {
+        console.log(req.url);
+        next();
+    }
 }
 
 new Server();
