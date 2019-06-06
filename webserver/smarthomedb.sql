@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Erstellungszeit: 06. Jun 2019 um 22:40
+-- Erstellungszeit: 06. Jun 2019 um 23:19
 -- Server-Version: 10.3.15-MariaDB
 -- PHP-Version: 7.3.6
 
@@ -116,8 +116,8 @@ INSERT INTO `products` (`fridge_id`, `product_id`, `start_weight`, `current_weig
 --
 -- Tabellenstruktur für Tabelle `users`
 --
--- Erstellt am: 06. Jun 2019 um 20:37
--- Zuletzt aktualisiert: 06. Jun 2019 um 20:37
+-- Erstellt am: 06. Jun 2019 um 21:16
+-- Zuletzt aktualisiert: 06. Jun 2019 um 21:17
 --
 
 CREATE TABLE `users` (
@@ -126,7 +126,7 @@ CREATE TABLE `users` (
   `password` varchar(60) COLLATE latin1_general_ci NOT NULL,
   `uuid` varchar(255) COLLATE latin1_general_ci DEFAULT NULL,
   `home_id` int(11) NOT NULL,
-  `is_admin` tinyint(1) NOT NULL
+  `is_admin` tinyint(1) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_general_ci;
 
 --
@@ -140,9 +140,10 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`user_id`, `name`, `password`, `uuid`, `home_id`, `is_admin`) VALUES
+(0, 'gunter', 'pw', NULL, 1, 0),
 (1, 'hugo', 'hugoBest', NULL, 1, 1),
 (2, 'hugos_wife', 'hugos_wifeBest', NULL, 1, 0),
-(3, 'lisa', 'password', '827d2784-730a-4649-ba41-46cc750cf08f', 1, 0),
+(3, 'lisa', 'password', '0d72f006-8933-491c-b27e-bf8339eb7278', 1, 0),
 (4, 'milla', 'something', NULL, 2, 1);
 
 --

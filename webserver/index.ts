@@ -24,7 +24,7 @@ export class Server {
         //this.app.use(this.authorize.bind(this));
         //this.app.use("/revalidate/:token", this.logInStillValid.bind(this));
         this.app.get("/login/:usr.:pwd", this.loginRequest.bind(this));
-        // this.app.get("/register/:usr.:pwd", this.registerRequest.bind(this));
+        this.app.get("/register/:usr.:pwd", this.registerRequest.bind(this));
         // this.app.get("/logout", this.logoutRequest.bind(this));
         // this.app.get("/submitscore/:score.:message", this.newScoreRequest.bind(this));
         // this.app.get("/getuserscores", this.getUserScore.bind(this));
@@ -46,21 +46,16 @@ export class Server {
     // }
 
     // Checks if users is registered and sends new uuid.
+    // example get: http://localhost:4200/login/lisa.password 
     private loginRequest(req: express.Request, res: express.Response) {
         const username = this.doubleQuote(req.params.usr);
         const password = this.doubleQuote(req.params.pwd);
-
-        // CREATE TABLE users(
-        //     username varchar(255) not null,
-        //     password varchar(255) not null,
-        //     userid int not null AUTO_INCREMENT,
-        //     uuid varchar(255)
-        // ) ENGINE = storage_engine
 
         console.log(username + ' and the ' + password);
 
         connection.query('SELECT * FROM users WHERE password = ' + password + ' and name = ' + username, function (err, rows, fields) {
             if (err) {
+                res.status(400).send("Login failed.");
                 throw err;
             }
             else {
@@ -106,25 +101,43 @@ export class Server {
     //     }
     // }
 
-    // // Registers a user by name and password then sends corresponding statuscode.
-    // private registerRequest(req: express.Request, res: express.Response) {
-    //     const username: string = req.params.usr;
-    //     const password: string = req.params.pwd;
+    // Registers a user by name and password then sends corresponding statuscode.
+    // example: http://localhost:4200/register/gunter.pw ::::: BUT home id is not changable in this case ... do we have to implement this? XD    
+    private registerRequest(req: express.Request, res: express.Response) {
+        const username: string = this.doubleQuote(req.params.usr);
+        const password: string = this.doubleQuote(req.params.pwd);
 
-    //     console.log(this.leaderBoardScores);
+        let hmm = this.getDateString();
 
-    //     let hmm = this.getDateString();
+        connection.query('SELECT * FROM users WHERE name = ' + username, function (err, rows, fields) {
+            if (err) {
+                res.status(400).send("error");
+                throw err;
+            }
+            else {
+                console.log(rows);
+                if (rows.length == 1) {
+                    res.status(409).send("Username is already taken.");
+                    return;
 
-    //     for (const user of this.registeredUsers) {
-    //         if (user.username === username) {
-    //             res.send(409, "Username is already taken.");
-    //             return;
-    //         }
-    //     }
-
-    //     this.registeredUsers.push(new User(username, password));
-    //     res.send(201, "Registration successful");
-    // }
+                }
+                //INSERT INTO `users`(`user_id`, `name`, `password`, `uuid`, `home_id`, `is_admin`) VALUES ([value-1],[value-2],[value-3],[value-4],[value-5],[value-6])
+                //INSERT INTO`users`(`name`, `password`, `home_id`) VALUES('1marvin', 'marvin', 2)
+                else {
+                    connection.query('INSERT INTO`users`(`name`, `password`, `home_id`) VALUES(' + username + ',' + password + ',' + 1 + ')', function (err1, rows1, fields) {
+                        if (err1) {                                                                                                 //// Care always home_id 1 should be changed
+                            res.status(400).send("error");
+                            throw err1;
+                        }
+                        else {
+                            res.status(200).send("Succesfully registered.");
+                            return;
+                        }
+                    });
+                }
+            }
+        });
+    }
 
     // // Checks for the uuid and removes the current from the active user.
     // private logoutRequest(req: express.Request, res: express.Response) {
@@ -191,15 +204,15 @@ export class Server {
     //     }
     // }
 
-    // private getDateString(): string {
-    //     let dd = this.dateTime.getUTCDate();
-    //     let mm = this.dateTime.getUTCMonth();
-    //     let yyyy = this.dateTime.getUTCFullYear();
-    //     let hh = this.dateTime.getUTCHours();
-    //     let minmin = this.dateTime.getUTCMinutes();
-    //     let finalDate = dd + "." + mm + "." + yyyy + " [" + hh + ":" + minmin + "]"
-    //     return finalDate;
-    // }
+    private getDateString(): string {
+        let dd = this.dateTime.getUTCDate();
+        let mm = this.dateTime.getUTCMonth();
+        let yyyy = this.dateTime.getUTCFullYear();
+        let hh = this.dateTime.getUTCHours();
+        let minmin = this.dateTime.getUTCMinutes();
+        let finalDate = dd + "." + mm + "." + yyyy + " [" + hh + ":" + minmin + "]"
+        return finalDate;
+    }
 
     private logRequest(req: express.Request, res: express.Response, next: express.NextFunction) {
         console.log(req.url);
