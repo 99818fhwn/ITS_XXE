@@ -47,8 +47,8 @@ export class Server {
 
     // Checks if users is registered and sends new uuid.
     private loginRequest(req: express.Request, res: express.Response) {
-        const username = req.params.usr;
-        const password = req.params.pwd;
+        const username = this.doubleQuote(req.params.usr);
+        const password = this.doubleQuote(req.params.pwd);
 
         // CREATE TABLE users(
         //     username varchar(255) not null,
@@ -59,15 +59,17 @@ export class Server {
 
         console.log(username + ' and the ' + password);
 
-        connection.query('SELECT * FROM users WHERE password = \'' + password + "\' and username = \'" + username + '\'', function (err, rows, fields) {
+        connection.query('SELECT * FROM users WHERE password = ' + password + ' and username = ' + username, function (err, rows, fields) {
             if (err) {
                 throw err;
             }
             else {
+                console.log(rows);
                 if (rows.length == 1) {
                     console.log('The solution is: ' + rows[0].uuid);
                     var uuid = uuid4();
-                    connection.query('UPDATE users SET uuid = \'' + uuid + '\' where username = \'' + username + '\' and password = \'' + password + '\'', function (err1, rows1, fields) {
+                    var uuids = "'" + uuid + "'";
+                    connection.query('UPDATE users SET uuid = ' + uuids + ' where username = ' + username + ' and password = ' + password, function (err1, rows1, fields) {
                         if (err1) {
                             throw err1;
                         }
@@ -83,6 +85,10 @@ export class Server {
             }
         });
         //connection.end();
+    }
+
+    public doubleQuote(input): string {
+        return "'" + input + "'";
     }
 
     // // For every request checking the valid token.
