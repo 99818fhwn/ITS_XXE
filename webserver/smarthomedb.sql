@@ -61,7 +61,8 @@ INSERT INTO `fridges` (`fridge_id`, `home_id`, `is_on`, `temperature`) VALUES
 --
 
 CREATE TABLE `homes` (
-  `home_id` int(11) NOT NULL
+  `home_id` int(11) NOT NULL,
+  `adress` varchar(60)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_general_ci;
 
 --
@@ -107,9 +108,9 @@ CREATE TABLE `products` (
 --
 
 INSERT INTO `products` (`fridge_id`, `product_id`, `start_weight`, `current_weight`, `expire_date`) VALUES
-(3, 1, 12, 1, '0000-00-00'),
-(1, 12, 500, 300, '0000-00-00'),
-(1, 45, 100, 100, '0000-00-00');
+(3, 1, 12, 1, '2019-10-01'),
+(1, 12, 500, 300, '2020-04-12'),
+(1, 45, 100, 100, '2019-07-25');
 
 -- --------------------------------------------------------
 
