@@ -12,6 +12,12 @@ SET AUTOCOMMIT = 0;
 START TRANSACTION;
 SET time_zone = "+00:00";
 
+DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS products;
+DROP TABLE IF EXISTS fridges;
+DROP TABLE IF EXISTS homes;
+
+
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -122,12 +128,13 @@ INSERT INTO `products` (`fridge_id`, `product_id`, `start_weight`, `current_weig
 --
 
 CREATE TABLE `users` (
-  `user_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(30) COLLATE latin1_general_ci NOT NULL,
   `password` varchar(60) COLLATE latin1_general_ci NOT NULL,
   `uuid` varchar(255) COLLATE latin1_general_ci DEFAULT NULL,
   `home_id` int(11) NOT NULL,
-  `is_admin` tinyint(1) NOT NULL DEFAULT 0
+  `is_admin` tinyint(1) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_general_ci;
 
 --
@@ -175,7 +182,7 @@ ALTER TABLE `products`
 -- Indizes für die Tabelle `users`
 --
 ALTER TABLE `users`
-  ADD PRIMARY KEY (`user_id`),
+  -- ADD PRIMARY KEY (`user_id`),
   ADD KEY `home_id` (`home_id`);
 
 --

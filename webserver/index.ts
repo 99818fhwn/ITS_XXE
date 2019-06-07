@@ -102,7 +102,7 @@ export class Server {
     // }
 
     // Registers a user by name and password then sends corresponding statuscode.
-    // example: http://localhost:4200/register/gunter.pw ::::: BUT home id is not changable in this case ... 
+    // example: http://localhost:4200/register/gunter.pw ::::: BUT home id is not changable in this case 
     private registerRequest(req: express.Request, res: express.Response) {
         const username: string = this.doubleQuote(req.params.usr);
         const password: string = this.doubleQuote(req.params.pwd);
@@ -124,7 +124,9 @@ export class Server {
                 //INSERT INTO `users`(`user_id`, `name`, `password`, `uuid`, `home_id`, `is_admin`) VALUES ([value-1],[value-2],[value-3],[value-4],[value-5],[value-6])
                 //INSERT INTO`users`(`name`, `password`, `home_id`) VALUES('1marvin', 'marvin', 2)
                 else {
-                    connection.query('INSERT INTO`users`(`name`, `password`, `home_id`) VALUES(' + username + ',' + password + ',' + 1 + ')', function (err1, rows1, fields) {
+                    connection.query('INSERT INTO `users`(`name`, `password`, `home_id`) VALUES(' 
+                    + username + ',' + password + ',' + 1 + ')', 
+                    function (err1, rows1, fields) {
                         if (err1) {                                                                                                 //// Care always home_id 1 should be changed
                             res.status(400).send("error");
                             throw err1;
