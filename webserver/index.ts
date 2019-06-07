@@ -102,7 +102,7 @@ export class Server {
     // }
 
     // Registers a user by name and password then sends corresponding statuscode.
-    // example: http://localhost:4200/register/gunter.pw ::::: BUT home id is not changable in this case ... do we have to implement this? XD    
+    // example: http://localhost:4200/register/gunter.pw ::::: BUT home id is not changable in this case ... 
     private registerRequest(req: express.Request, res: express.Response) {
         const username: string = this.doubleQuote(req.params.usr);
         const password: string = this.doubleQuote(req.params.pwd);
