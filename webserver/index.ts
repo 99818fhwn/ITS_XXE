@@ -26,9 +26,6 @@ export class Server {
         this.app.get("/login/:usr.:pwd", this.loginRequest.bind(this));
         this.app.get("/register/:usr.:pwd", this.registerRequest.bind(this));
         // this.app.get("/logout", this.logoutRequest.bind(this));
-        // this.app.get("/submitscore/:score.:message", this.newScoreRequest.bind(this));
-        // this.app.get("/getuserscores", this.getUserScore.bind(this));
-        // this.app.get("/getgloballeaderboardscores", this.getLeaderboard.bind(this));
         this.app.listen(4200);
     }
 
@@ -124,18 +121,18 @@ export class Server {
                 //INSERT INTO `users`(`user_id`, `name`, `password`, `uuid`, `home_id`, `is_admin`) VALUES ([value-1],[value-2],[value-3],[value-4],[value-5],[value-6])
                 //INSERT INTO`users`(`name`, `password`, `home_id`) VALUES('1marvin', 'marvin', 2)
                 else {
-                    connection.query('INSERT INTO `users`(`name`, `password`, `home_id`) VALUES(' 
-                    + username + ',' + password + ',' + 1 + ')', 
-                    function (err1, rows1, fields) {
-                        if (err1) {                                                                                                 //// Care always home_id 1 should be changed
-                            res.status(400).send("error");
-                            throw err1;
-                        }
-                        else {
-                            res.status(200).send("Succesfully registered.");
-                            return;
-                        }
-                    });
+                    connection.query('INSERT INTO `users`(`name`, `password`, `home_id`) VALUES('
+                        + username + ',' + password + ',' + 1 + ')',
+                        function (err1, rows1, fields) {
+                            if (err1) {                                                                                                 //// Care always home_id 1 should be changed
+                                res.status(400).send("error");
+                                throw err1;
+                            }
+                            else {
+                                res.status(200).send("Succesfully registered.");
+                                return;
+                            }
+                        });
                 }
             }
         });
@@ -155,56 +152,6 @@ export class Server {
     //     res.send(200, "Logout successful");
     // }
 
-    // // Gets the personal highscores.
-    // private getUserScore(req: express.Request, res: express.Response) {
-    //     const uuidValue: string = req.header("Authorization");
-
-    //     for (const user of this.registeredUsers) {
-    //         if (user.uuid === uuidValue) {
-    //             console.log(user.gameResults);
-    //             res.send(user.gameResults);
-    //             return;
-    //         }
-    //     }
-    // }
-
-    // // Sends the leaderboard.
-    // private getLeaderboard(req: express.Request, res: express.Response) {
-    //     res.send(this.leaderBoardScores);
-    // }
-
-    // // Adding now score to the boards.
-    // private newScoreRequest(req: express.Request, res: express.Response) {
-    //     const score = req.params.score;
-    //     const message = req.params.message;
-    //     let userFound = false;
-    //     const uuidToken: string = req.header("Authorization");
-
-    //     // Checking for valid user.
-    //     for (const user of this.registeredUsers) {
-    //         if (user.uuid === uuidToken) {
-
-    //             let roundResult = new RoundResult(user.username, score, message, this.getDateString());
-
-    //             console.log(roundResult);
-    //             // Adding round to users round results.
-    //             user.addRoundResult(roundResult);
-    //             user.gameResults.sort((a, b) => b.score - a.score);
-    //             user.gameResults.slice(1, 11);
-    //             userFound = true;
-
-    //             // Adding new score to leaderboard.
-    //             this.leaderBoardScores.push(roundResult);
-    //             this.leaderBoardScores.sort((a, b) => b.score - a.score);
-    //         }
-    //     }
-
-    //     if (userFound) {
-    //         res.send(201, "Added score.");
-    //     } else {
-    //         res.send(404, "User not found.");
-    //     }
-    // }
 
     private getDateString(): string {
         let dd = this.dateTime.getUTCDate();
