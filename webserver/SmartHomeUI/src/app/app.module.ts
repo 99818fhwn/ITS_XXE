@@ -3,10 +3,12 @@ import { NgModule } from '@angular/core';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
+import { FridgeSimulatorComponent } from './fridge-simulator/fridge-simulator.component';
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    FridgeSimulatorComponent
   ],
   imports: [
     BrowserModule,
