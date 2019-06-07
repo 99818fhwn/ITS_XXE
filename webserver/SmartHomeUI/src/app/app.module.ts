@@ -3,6 +3,7 @@ import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
+import { FridgeSimulatorComponent } from './fridge-simulator/fridge-simulator.component';
 import { RegisterPageComponent } from './register-page/register-page.component';
 import { TokenInterceptorService } from './tokeninterceptor.service';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
@@ -30,7 +31,8 @@ import { LoginLandingPageComponent } from './login-landing-page/login-landing-pa
   declarations: [
     AppComponent,
     LoginLandingPageComponent,
-    RegisterPageComponent
+    RegisterPageComponent,
+    FridgeSimulatorComponent
   ]
 })
 export class AppModule { }
