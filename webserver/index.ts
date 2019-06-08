@@ -2,12 +2,9 @@ import * as express from "express";
 import * as path from "path";
 import * as uuid4 from "uuidv4";
 import * as mysql from 'mysql';
-<<<<<<< HEAD
 import { UserViewModel } from "./UserViewModel";
-=======
 import * as bodyParser from 'body-parser';
 import { Product } from "./Product";
->>>>>>> ee67f39d32f70cb64e40fcf4edc6d6f92e7610e0
 
 var connection = mysql.createConnection({
     host: 'localhost',
@@ -28,25 +25,22 @@ export class Server {
         this.app.use(express.static(path.join(__dirname, "SmartHomeUI/dist/SmartHomeUI")));  // http://expressjs.com/en/starter/static-files.html
         this.app.use(this.logRequest.bind(this));                              // http://expressjs.com/en/guide/writing-middleware.html
         this.app.use(bodyParser.text().bind(this));
-        //this.app.use(this.authorize.bind(this));
+        this.app.use(this.authorize.bind(this));
         //this.app.use("/revalidate/:token", this.logInStillValid.bind(this));
         this.app.get("/login/:usr.:pwd", this.loginRequest.bind(this));
         this.app.get("/register/:usr.:pwd", this.registerRequest.bind(this));
-<<<<<<< HEAD
         this.app.get("/mainpage/users", this.getUsers.bind(this));
-=======
-            
+
         this.app.post("/products/:fridgeid", this.productsRequest.bind(this));
 
         this.app.get("/isOn/:fridgeid.:isOn", this.isOnRequest.bind(this));
         this.app.get("/setTemperature/:fridgeid.:temp", this.setTemperatureRequest.bind(this));
->>>>>>> ee67f39d32f70cb64e40fcf4edc6d6f92e7610e0
         // this.app.get("/logout", this.logoutRequest.bind(this));
         this.app.listen(4200);
     }
 
     private productsRequest(req: express.Request, res: express.Response) {
-        
+
         var DOMParser = require('xmldom').DOMParser;
         let parser = new DOMParser();
         let xmlDoc = parser.parseFromString(req.body, "text/xml");
@@ -57,13 +51,12 @@ export class Server {
         //let products : Product[] = [];
         let responses = [];
 
-        for(let i = 0; i < l; i++)
-        {
-            let id :string = xmlDoc.getElementsByTagName("id")[i].childNodes[0].nodeValue;
-            let fridge_id :string = xmlDoc.getElementsByTagName("fridge_id")[i].childNodes[0].nodeValue;
-            let start_weight :string = xmlDoc.getElementsByTagName("start_weight")[i].childNodes[0].nodeValue;
-            let current_weight :string = xmlDoc.getElementsByTagName("current_weight")[i].childNodes[0].nodeValue;
-            let expire_date : string = xmlDoc.getElementsByTagName("expire_date")[i].childNodes[0].nodeValue;
+        for (let i = 0; i < l; i++) {
+            let id: string = xmlDoc.getElementsByTagName("id")[i].childNodes[0].nodeValue;
+            let fridge_id: string = xmlDoc.getElementsByTagName("fridge_id")[i].childNodes[0].nodeValue;
+            let start_weight: string = xmlDoc.getElementsByTagName("start_weight")[i].childNodes[0].nodeValue;
+            let current_weight: string = xmlDoc.getElementsByTagName("current_weight")[i].childNodes[0].nodeValue;
+            let expire_date: string = xmlDoc.getElementsByTagName("expire_date")[i].childNodes[0].nodeValue;
 
             console.log("dt: " + expire_date);
             //console.log(parseInt(id) + " " + parseInt(fridge_id) + " " + parseInt(start_weight) + " " +
@@ -73,20 +66,20 @@ export class Server {
             //products[i] = p;
 
 
-            connection.query('SELECT * FROM products WHERE product_id = ' + id + ' and fridge_id = ' + fridge_id, 
-            function (err, rows, fields) {
-                console.log(rows);
-                if (err) {
-                    res.status(400).send("error");
-                    throw err;
-                }
-                else {
-                    console.log("rows: " + rows);
-                    if (rows.length == 1) {
-                        console.log("pr exists");
-                        connection.query('UPDATE products SET current_weight = ' + current_weight + 
-                        ' where product_id = ' + id + ' and fridge_id = ' + fridge_id, 
-                            function (err1, rows1, fields) {
+            connection.query('SELECT * FROM products WHERE product_id = ' + id + ' and fridge_id = ' + fridge_id,
+                function (err, rows, fields) {
+                    console.log(rows);
+                    if (err) {
+                        res.status(400).send("error");
+                        throw err;
+                    }
+                    else {
+                        console.log("rows: " + rows);
+                        if (rows.length == 1) {
+                            console.log("pr exists");
+                            connection.query('UPDATE products SET current_weight = ' + current_weight +
+                                ' where product_id = ' + id + ' and fridge_id = ' + fridge_id,
+                                function (err1, rows1, fields) {
                                     if (err1) {
                                         throw err1;
                                     }
@@ -94,29 +87,29 @@ export class Server {
                                         responses.push(current_weight);
                                         return;
                                     }
-                            });
-                    }
-                    else{
-                        console.log("pr dsnt exist");
-                        var qs = 'INSERT INTO products (product_id, fridge_id, start_weight, current_weight, expire_date)' +
-                        ' VALUES(' + id + ', ' + fridge_id + ', ' + start_weight + ', ' + current_weight + ', \'' + expire_date + '\')';
-                        console.log(qs);
-                        connection.query(qs
-                            , 
-                            function (err1, rows1, fields) {
+                                });
+                        }
+                        else {
+                            console.log("pr dsnt exist");
+                            var qs = 'INSERT INTO products (product_id, fridge_id, start_weight, current_weight, expire_date)' +
+                                ' VALUES(' + id + ', ' + fridge_id + ', ' + start_weight + ', ' + current_weight + ', \'' + expire_date + '\')';
+                            console.log(qs);
+                            connection.query(qs
+                                ,
+                                function (err1, rows1, fields) {
                                     if (err1) {
                                         throw err1;
                                     }
                                     else {
-                                        responses.push(current_weight+expire_date);
+                                        responses.push(current_weight + expire_date);
                                         return;
                                     }
-                            });
+                                });
+                        }
                     }
-                }
-            
-            });
-        }  
+
+                });
+        }
 
         res.send(responses);
     }
@@ -134,8 +127,8 @@ export class Server {
             }
             else {
                 console.log(rows);
-                connection.query('UPDATE fridges SET is_on = ' + isOn + ' where fridge_id = ' + fridgeid, 
-                function (err1, rows1, fields) {
+                connection.query('UPDATE fridges SET is_on = ' + isOn + ' where fridge_id = ' + fridgeid,
+                    function (err1, rows1, fields) {
                         if (err1) {
                             throw err1;
                         }
@@ -143,7 +136,7 @@ export class Server {
                             res.send(isOn);
                             return;
                         }
-                });
+                    });
             }
         });
         //connection.end();
@@ -162,8 +155,8 @@ export class Server {
             }
             else {
                 console.log(rows);
-                connection.query('UPDATE fridges SET temperature = ' + temp + ' where fridge_id = ' + fridgeid, 
-                function (err1, rows1, fields) {
+                connection.query('UPDATE fridges SET temperature = ' + temp + ' where fridge_id = ' + fridgeid,
+                    function (err1, rows1, fields) {
                         if (err1) {
                             throw err1;
                         }
@@ -171,7 +164,7 @@ export class Server {
                             res.send(temp);
                             return;
                         }
-                });
+                    });
             }
         });
         //connection.end();
@@ -262,7 +255,7 @@ export class Server {
             console.log("login or register was requested");
         } else {
             if (req.header("Authorization") == null) {
-                res.status(401).send("Unauthorized");
+                res.status(401).send("Unauthorized").redirect('/login');
                 return;
             } else {
                 var qs = 'SELECT * FROM users WHERE uuid = ' + this.doubleQuote(req.header("Authorization"));
@@ -309,22 +302,24 @@ export class Server {
                     throw err;
                 }
                 else {
-                    var qs2 = 'SELECT * FROM users WHERE home_id = ' + rows[0].home_id + ' and ( uuid is null or Not uuid = ' + tokens + ' )';
-                    console.log(qs2);
-                    connection.query(qs2, function (err, rows2, fields2) {
-                        console.log(rows2);
-                        var users: UserViewModel[] = []
+                    if (rows.length == 1) {
+                        var qs2 = 'SELECT * FROM users WHERE home_id = ' + rows[0].home_id + ' and ( uuid is null or Not uuid = ' + tokens + ' )';
+                        console.log(qs2);
+                        connection.query(qs2, function (err, rows2, fields2) {
+                            console.log(rows2);
+                            var users: UserViewModel[] = []
 
-                        if (rows2.length > 0) {
-                            rows2.forEach(userrow => {
-                                users.push(new UserViewModel(userrow.name, userrow.user_id, userrow.is_admin));
-                            });
-                            res.status(200).send(JSON.stringify(users));
-                        }
-                        else {
-                            res.status(400).send("Nothing found here :(, you might be lonely.");
-                        }
-                    });
+                            if (rows2.length > 0) {
+                                rows2.forEach(userrow => {
+                                    users.push(new UserViewModel(userrow.name, userrow.user_id, userrow.is_admin));
+                                });
+                                res.status(200).send(JSON.stringify(users));
+                            }
+                            else {
+                                res.status(400).send("Nothing found here :(, you might be lonely.");
+                            }
+                        });
+                    }
                 }
             });
         }

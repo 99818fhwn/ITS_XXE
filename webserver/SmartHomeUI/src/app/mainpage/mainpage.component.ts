@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { throwError } from 'rxjs';
 import { UserViewModel } from 'src/assets/UserViewModel';
 import { UserEditService } from '../user-edit.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-mainpage',
@@ -10,7 +11,7 @@ import { UserEditService } from '../user-edit.service';
 })
 export class MainpageComponent implements OnInit {
 
-  constructor(private usereditservice: UserEditService) { }
+  constructor(private usereditservice: UserEditService, private router: Router) { }
 
   public username: string;
   public isadmin: number;
@@ -20,6 +21,11 @@ export class MainpageComponent implements OnInit {
   ngOnInit() {
 
     this.userInfo = JSON.parse(localStorage.getItem("currentUser"));
+
+    if (this.userInfo == null) {
+      this.router.navigate(['/login']);
+      return;
+    }
 
     this.username = this.userInfo.name;
     this.isadmin = this.userInfo.isadmin;
