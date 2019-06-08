@@ -1,0 +1,49 @@
+<div class="container">
+  <div class="row">
+    Welcome {{username}}
+  </div>
+  <div class="row">
+    Fridges
+  </div>
+  <div class="row">
+    Lights
+  </div>
+  <div [hidden]="isadmin == 0" style="width: fit-content" class="row">
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Value</th>
+          <th>IsAdmin</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let user of users">
+          <td>{{user.name}}</td>
+          <td>{{user.id}}</td>
+          <td>{{user.isadmin}}</td>
+          <td><button class="btn btn-danger" (click)="remove(user)">Remove</button></td>
+        </tr>
+      </tbody>
+    </table>
+    <small>
+      isadmin = {{isadmin}}
+    </small>
+  </div>
+  <div class="row">
+  </div>
+  <div class="row">
+    Products
+  </div>
+  <div class="row">
+    Vorschläge
+  </div>
+</div>
+
+<!-- 
+fridgeseite 
+licht 
+homeusers
+produkte
+vorschläge -->

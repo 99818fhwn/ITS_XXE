@@ -1,20 +1,21 @@
-import { NgModule } from '@angular/core';
+import { NgModule, Component } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { AppComponent } from './app.component';
 import { FridgeSimulatorComponent } from './fridge-simulator/fridge-simulator.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import * as loginLandingPageComponent from './login-landing-page/login-landing-page.component';
 import { RegisterPageComponent } from './register-page/register-page.component';
+import { MainpageComponent } from './mainpage/mainpage.component';
 
 const routes: Routes = [
-{
+  {
     path: "home",
     component: AppComponent
-},
-{
-  path: "fridge-simulator",
-  component: FridgeSimulatorComponent
-},
+  },
+  {
+    path: "fridge-simulator",
+    component: FridgeSimulatorComponent
+  },
   {
     path: "",
     component: loginLandingPageComponent.LoginLandingPageComponent
@@ -26,6 +27,10 @@ const routes: Routes = [
   {
     path: "register",
     component: RegisterPageComponent
+  },
+  {
+    path: "mainpage",
+    component: MainpageComponent
   }
 ];
 

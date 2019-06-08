@@ -46,7 +46,8 @@ export class LoginLandingPageComponent implements OnInit {
 
       this.loginS.login(this.userForm.controls['name'].value, this.userForm.controls['password'].value).subscribe(
         data => {
-          localStorage.setItem('currentUser', JSON.stringify({ token: data, name: this.userForm.controls['name'].value }));
+          var dataarray = data.split("+//+");
+          localStorage.setItem('currentUser', JSON.stringify({ token: dataarray[0], name: this.userForm.controls['name'].value, isadmin: dataarray[1] }));
           this.router.navigate(['/mainpage']); ////Insert a routing here.
         },
 
