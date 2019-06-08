@@ -34,7 +34,7 @@ export class Server {
         this.app.get("/mainpage/users", this.getUsers.bind(this));
             
         this.app.post("/products/:fridgeid", this.productsRequest.bind(this));
-
+        this.app.delete("/mainpage/users/delete/:userid", this.deleteUsers.bind(this));
         this.app.get("/isOn/:fridgeid.:isOn", this.isOnRequest.bind(this));
         this.app.get("/setTemperature/:fridgeid.:temp", this.setTemperatureRequest.bind(this));
         // this.app.get("/logout", this.logoutRequest.bind(this));
