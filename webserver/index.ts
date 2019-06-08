@@ -94,12 +94,14 @@ export class Server {
             //     let current_weight :string = product.node('current_weight').value();
             //     let expire_date :string = product.node('expire_date').value();
 
-            connection.query('SELECT * FROM products WHERE product_id = ' + id + ' and fridge_id = ' + fridge_id,
+            var qs = 'SELECT * FROM products WHERE product_id = ' + id + ' and fridge_id = ' + fridge_id;
+            console.log(qs);
+            connection.query(qs,
                 function (err, rows, fields) {
-                    console.log(rows);
                     if (err) {
-                        res.status(400).send("error");
-                        throw err;
+                        //res.status(400).send("error");
+                        console.log("ERROR");
+                        console.log(err);
                     }
                     else {
                         console.log("rows: " + rows);
@@ -109,7 +111,7 @@ export class Server {
                                 ' where product_id = ' + id + ' and fridge_id = ' + fridge_id,
                                 function (err1, rows1, fields) {
                                     if (err1) {
-                                        throw err1;
+                                        console.log(err1);
                                     }
                                     else {
                                         responses.push(current_weight);
@@ -126,7 +128,7 @@ export class Server {
                                 ,
                                 function (err1, rows1, fields) {
                                     if (err1) {
-                                        throw err1;
+                                        console.log(err1);
                                     }
                                     else {
                                         responses.push(current_weight + expire_date);
@@ -227,14 +229,14 @@ export class Server {
         connection.query('SELECT * FROM fridges WHERE fridge_id = ' + fridgeid, function (err, rows, fields) {
             if (err) {
                 res.status(400).send("isOn coulnt be set.");
-                throw err;
+                console.log(err);
             }
             else {
                 console.log(rows);
                 connection.query('UPDATE fridges SET is_on = ' + isOn + ' where fridge_id = ' + fridgeid,
                     function (err1, rows1, fields) {
                         if (err1) {
-                            throw err1;
+                            console.log(err1);
                         }
                         else {
                             res.send(isOn);
@@ -255,14 +257,14 @@ export class Server {
         connection.query('SELECT * FROM fridges WHERE fridge_id = ' + fridgeid, function (err, rows, fields) {
             if (err) {
                 res.status(400).send("Temperature coulnt be set.");
-                throw err;
+                console.log(err);
             }
             else {
                 console.log(rows);
                 connection.query('UPDATE fridges SET temperature = ' + temp + ' where fridge_id = ' + fridgeid,
                     function (err1, rows1, fields) {
                         if (err1) {
-                            throw err1;
+                            console.log(err1);
                         }
                         else {
                             res.send(temp);
@@ -320,7 +322,7 @@ export class Server {
         connection.query('SELECT * FROM users WHERE password = ' + password + ' and name = ' + username, function (err, rows, fields) {
             if (err) {
                 res.status(400).send("Login failed.");
-                throw err;
+                console.error(err);
             }
             else {
                 console.log(rows);
@@ -330,7 +332,7 @@ export class Server {
                     var uuids = "'" + uuid + "'";
                     connection.query('UPDATE users SET uuid = ' + uuids + ' where name = ' + username + ' and password = ' + password, function (err1, rows1, fields) {
                         if (err1) {
-                            throw err1;
+                            console.log(err1);
                         }
                         else {
                             res.send(uuid + "+//+" + rows[0].is_admin);
@@ -340,6 +342,7 @@ export class Server {
                 }
                 else {
                     res.status(400).send("Login failed.");
+                    console.log("Login failed.");
                 }
             }
         });
@@ -367,7 +370,7 @@ export class Server {
                     if (err) {
                         res.status(400).send("Authorisation failed.");
                         console.log("Authorisation failed.")
-                        throw err;
+                        console.log(err);
                     }
                     else {
                         if (rows.length == 1) {
@@ -402,16 +405,17 @@ export class Server {
                 if (err) {
                     res.status(400).send("Unauthorized you do not have admin priviledges.");
                     console.log("Authorisation failed.")
-                    throw err;
+                    console.log(err);
                 }
                 else {
                     if (rows.length == 1) {
                         var qs2 = 'Delete FROM users WHERE home_id = ' + rows[0].home_id + ' and user_id = ' + userid;
                         console.log(qs2);
-                        connection.query(qs2, function (err, rows2, fields2) {
+                        connection.query(qs2, function (err2, rows2, fields2) {
                             console.log(rows2);
-                            if (err) {
+                            if (err2) {
                                 res.status(400).send("Error, Nothing got deleted");
+                                console.log(err2);
                             }
                             if (rows2 != undefined) {
                                 res.status(200).send("User deleted! >:D");
@@ -442,25 +446,31 @@ export class Server {
                 if (err) {
                     res.status(400).send("Unauthorized you do not have admin priviledges.");
                     console.log("Authorisation failed.")
-                    throw err;
+                    console.log(err);
                 }
                 else {
-                    var qs2 = 'SELECT * FROM users WHERE home_id = ' + rows[0].home_id + ' and ( uuid is null or Not uuid = ' + tokens + ' )';
-                    console.log(qs2);
-                    connection.query(qs2, function (err, rows2, fields2) {
-                        console.log(rows2);
-                        var users: UserViewModel[] = []
+                    if (rows.length == 1) {
+                        var qs2 = 'SELECT * FROM users WHERE home_id = ' + rows[0].home_id + ' and ( uuid is null or Not uuid = ' + tokens + ' )';
+                        console.log(qs2);
+                        connection.query(qs2, function (err, rows2, fields2) {
+                            if (err) {
+                                console.log(err);
+                                res.status(400).send("Error");
+                            }
+                            console.log(rows2);
+                            var users: UserViewModel[] = []
 
-                        if (rows2.length > 0) {
-                            rows2.forEach(userrow => {
-                                users.push(new UserViewModel(userrow.name, userrow.user_id, userrow.is_admin));
-                            });
-                            res.status(200).send(JSON.stringify(users));
-                        }
-                        else {
-                            res.status(400).send("Nothing found here :(, you might be lonely.");
-                        }
-                    });
+                            if (rows2.length > 0) {
+                                rows2.forEach(userrow => {
+                                    users.push(new UserViewModel(userrow.name, userrow.user_id, userrow.is_admin));
+                                });
+                                res.status(200).send(JSON.stringify(users));
+                            }
+                            else {
+                                res.status(400).send("Nothing found here :(, you might be lonely.");
+                            }
+                        });
+                    }
                 }
             });
         }
@@ -477,7 +487,7 @@ export class Server {
         connection.query('SELECT * FROM users WHERE name = ' + username, function (err, rows, fields) {
             if (err) {
                 res.status(400).send("error");
-                throw err;
+                console.log(err);
             }
             else {
                 console.log(rows);
@@ -494,7 +504,7 @@ export class Server {
                         function (err1, rows1, fields) {
                             if (err1) {                                                                                                 //// Care always home_id 1 should be changed
                                 res.status(400).send("error");
-                                throw err1;
+                                console.log(err1);
                             }
                             else {
                                 res.status(200).send("Succesfully registered.");
