@@ -2,6 +2,7 @@ import * as express from "express";
 import * as path from "path";
 import * as uuid4 from "uuidv4";
 import * as mysql from 'mysql';
+import { UserViewModel } from "./UserViewModel";
 
 var connection = mysql.createConnection({
     host: 'localhost',
@@ -25,6 +26,7 @@ export class Server {
         //this.app.use("/revalidate/:token", this.logInStillValid.bind(this));
         this.app.get("/login/:usr.:pwd", this.loginRequest.bind(this));
         this.app.get("/register/:usr.:pwd", this.registerRequest.bind(this));
+        this.app.get("/mainpage/users", this.getUsers.bind(this));
         // this.app.get("/logout", this.logoutRequest.bind(this));
         this.app.listen(4200);
     }
@@ -48,7 +50,7 @@ export class Server {
         const username = this.doubleQuote(req.params.usr);
         const password = this.doubleQuote(req.params.pwd);
 
-        console.log(username + ' and the ' + password);
+        // console.log(username + ' and the ' + password);
 
         connection.query('SELECT * FROM users WHERE password = ' + password + ' and name = ' + username, function (err, rows, fields) {
             if (err) {
@@ -66,7 +68,7 @@ export class Server {
                             throw err1;
                         }
                         else {
-                            res.send(uuid);
+                            res.send(uuid + "+//+" + rows[0].is_admin);
                             return;
                         }
                     });
@@ -95,14 +97,16 @@ export class Server {
                 res.status(401).send("Unauthorized");
                 return;
             } else {
-                connection.query('SELECT * FROM users WHERE uuid = ' + this.doubleQuote(req.header("Authorization")), function (err, rows, fields) {
+                var qs = 'SELECT * FROM users WHERE uuid = ' + this.doubleQuote(req.header("Authorization"));
+                console.log(qs);
+                connection.query(qs, function (err, rows, fields) {
                     if (err) {
                         res.status(400).send("Authorisation failed.");
                         console.log("Authorisation failed.")
                         throw err;
                     }
                     else {
-                        if (rows == 1) {
+                        if (rows.length == 1) {
                             next();
                             console.log(rows);
                         }
@@ -114,6 +118,47 @@ export class Server {
                     }
                 });
             }
+        }
+    }
+
+
+    private getUsers(req: express.Request, res: express.Response) {
+        // If login or register is requested.
+        console.log("editing:");
+
+        var tokens = this.doubleQuote(req.header("Authorization"));
+
+        if (req.header("Authorization") == null) {
+            res.status(401).send("Unauthorized");
+            return;
+        } else {
+            var qs = 'SELECT * FROM users WHERE uuid = ' + tokens + 'and is_admin = 1';
+            console.log(qs);
+            connection.query(qs, function (err, rows, fields) {
+                if (err) {
+                    res.status(400).send("Unauthorized you do not have admin priviledges.");
+                    console.log("Authorisation failed.")
+                    throw err;
+                }
+                else {
+                    var qs2 = 'SELECT * FROM users WHERE home_id = ' + rows[0].home_id + ' and ( uuid is null or Not uuid = ' + tokens + ' )';
+                    console.log(qs2);
+                    connection.query(qs2, function (err, rows2, fields2) {
+                        console.log(rows2);
+                        var users: UserViewModel[] = []
+
+                        if (rows2.length > 0) {
+                            rows2.forEach(userrow => {
+                                users.push(new UserViewModel(userrow.name, userrow.user_id, userrow.is_admin));
+                            });
+                            res.status(200).send(JSON.stringify(users));
+                        }
+                        else {
+                            res.status(400).send("Nothing found here :(, you might be lonely.");
+                        }
+                    });
+                }
+            });
         }
     }
 

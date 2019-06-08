@@ -9,6 +9,7 @@ import { TokenInterceptorService } from './tokeninterceptor.service';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { LoginLandingPageComponent } from './login-landing-page/login-landing-page.component';
+import { MainpageComponent } from './mainpage/mainpage.component';
 
 @NgModule({
   imports: [
@@ -32,7 +33,8 @@ import { LoginLandingPageComponent } from './login-landing-page/login-landing-pa
     AppComponent,
     LoginLandingPageComponent,
     RegisterPageComponent,
-    FridgeSimulatorComponent
+    FridgeSimulatorComponent,
+    MainpageComponent
   ]
 })
 export class AppModule { }
