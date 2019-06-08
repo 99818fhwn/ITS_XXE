@@ -22,6 +22,8 @@ export class Server {
         this.dateTime = new Date();
         connection.connect();
 
+        console.log(1);
+
         this.app.use(express.static(path.join(__dirname, "SmartHomeUI/dist/SmartHomeUI")));  // http://expressjs.com/en/starter/static-files.html
         this.app.use(this.logRequest.bind(this));                              // http://expressjs.com/en/guide/writing-middleware.html
         this.app.use(bodyParser.text().bind(this));
@@ -48,7 +50,6 @@ export class Server {
         let xmlDoc = parser.parseFromString(req.body, "text/xml");
 
         let l = xmlDoc.getElementsByTagName("product").length;
-
 
         //let products : Product[] = [];
         let responses = [];
@@ -288,6 +289,8 @@ export class Server {
         // If login or register is requested.
         console.log("deleting:");
 
+
+        console.log(1);
         var userid = req.params.userid;
 
         var tokens = this.doubleQuote(req.header("Authorization"));
@@ -330,6 +333,9 @@ export class Server {
         // If login or register is requested.
         console.log("editing:");
 
+
+
+        console.log(1);
         var tokens = this.doubleQuote(req.header("Authorization"));
 
         if (req.header("Authorization") == null) {
