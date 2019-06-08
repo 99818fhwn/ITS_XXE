@@ -245,20 +245,39 @@ export class Server {
         return "'" + input + "'";
     }
 
-    // // For every request checking the valid token.
-    // private authorize(req: express.Request, res: express.Response, next: express.NextFunction) {
-    //     // If login or register is requested.
-    //     if ((req.url.search("login") == 1) || (req.url.search("register") == 1)) {
-    //         next();
-    //     } else {
-    //         if (req.header("Authorization") == null) {
-    //             res.status(401).send("Unauthorized");
-    //             return;
-    //         } else {
-    //             next();
-    //         }
-    //     }
-    // }
+    // For every request checking the valid token.
+    private authorize(req: express.Request, res: express.Response, next: express.NextFunction) {
+        // If login or register is requested.
+        console.log("authorizing:");
+        if ((req.url.search("login") == 1) || (req.url.search("register") == 1)) {
+            next();
+            console.log("login or register was requested");
+        } else {
+            if (req.header("Authorization") == null) {
+                res.status(401).send("Unauthorized");
+                return;
+            } else {
+                connection.query('SELECT * FROM users WHERE uuid = ' + this.doubleQuote(req.header("Authorization")), function (err, rows, fields) {
+                    if (err) {
+                        res.status(400).send("Authorisation failed.");
+                        console.log("Authorisation failed.")
+                        throw err;
+                    }
+                    else {
+                        if (rows == 1) {
+                            next();
+                            console.log(rows);
+                        }
+                        else {
+                            res.status(401).send("Unauthorized");
+                            console.log("unautorized nothing found");
+                            return;
+                        }
+                    }
+                });
+            }
+        }
+    }
 
     // Registers a user by name and password then sends corresponding statuscode.
     // example: http://localhost:4200/register/gunter.pw ::::: BUT home id is not changable in this case 
