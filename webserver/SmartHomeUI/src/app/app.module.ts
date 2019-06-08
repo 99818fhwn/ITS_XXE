@@ -10,6 +10,7 @@ import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { LoginLandingPageComponent } from './login-landing-page/login-landing-page.component';
 import { MainpageComponent } from './mainpage/mainpage.component';
+import { XEEHackerComponent } from './xeehacker/xeehacker.component';
 
 @NgModule({
   imports: [
@@ -34,7 +35,8 @@ import { MainpageComponent } from './mainpage/mainpage.component';
     LoginLandingPageComponent,
     RegisterPageComponent,
     FridgeSimulatorComponent,
-    MainpageComponent
+    MainpageComponent,
+    XEEHackerComponent
   ]
 })
 export class AppModule { }
