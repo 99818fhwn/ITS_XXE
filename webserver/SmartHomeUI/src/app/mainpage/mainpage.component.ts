@@ -30,11 +30,6 @@ export class MainpageComponent implements OnInit {
     this.username = this.userInfo.name;
     this.isadmin = this.userInfo.isadmin;
 
-
-    var testuser = new UserViewModel("Hiername", "ID1", "isadmin0");
-
-    this.users.push(testuser);
-
     this.usereditservice.getUsers().subscribe(
       data => {
         this.users = <UserViewModel[]>JSON.parse(data);
@@ -53,11 +48,16 @@ export class MainpageComponent implements OnInit {
 
   public remove(user: UserViewModel) {
 
-    console.log("Remove requested:" + user);
+    console.log("Remove requested:" + user.name);
 
     var index = this.users.indexOf(user, 0);
     if (index > -1) {
       this.users.splice(index, 1);
+      this.usereditservice.deleteUser(user.id).subscribe(
+        data => {
+          console.log(data);
+        }
+      );
     }
   }
 }

@@ -31,6 +31,7 @@ export class Server {
         this.app.get("/login/:usr.:pwd", this.loginRequest.bind(this));
         this.app.get("/register/:usr.:pwd", this.registerRequest.bind(this));
         this.app.get("/mainpage/users", this.getUsers.bind(this));
+        this.app.delete("/mainpage/users/delete/:userid", this.deleteUsers.bind(this));
 
         this.app.post("/products/:fridgeid", this.productsRequest.bind(this));
 
@@ -283,6 +284,47 @@ export class Server {
         }
     }
 
+    private deleteUsers(req: express.Request, res: express.Response) {
+        // If login or register is requested.
+        console.log("deleting:");
+
+        var userid = req.params.userid;
+
+        var tokens = this.doubleQuote(req.header("Authorization"));
+
+        if (req.header("Authorization") == null) {
+            res.status(401).send("Unauthorized");
+            return;
+        } else {
+            var qs = 'SELECT * FROM users WHERE uuid = ' + tokens + ' and is_admin = 1';
+            console.log(qs);
+            connection.query(qs, function (err, rows, fields) {
+                if (err) {
+                    res.status(400).send("Unauthorized you do not have admin priviledges.");
+                    console.log("Authorisation failed.")
+                    throw err;
+                }
+                else {
+                    if (rows.length == 1) {
+                        var qs2 = 'Delete FROM users WHERE home_id = ' + rows[0].home_id + ' and user_id = ' + userid;
+                        console.log(qs2);
+                        connection.query(qs2, function (err, rows2, fields2) {
+                            console.log(rows2);
+                            if (err) {
+                                res.status(400).send("Error, Nothing got deleted");
+                            }
+                            if (rows2 != undefined) {
+                                res.status(200).send("User deleted! >:D");
+                            }
+                            else {
+                                res.status(400).send("Nothing got deleted");
+                            }
+                        });
+                    }
+                }
+            });
+        }
+    }
 
     private getUsers(req: express.Request, res: express.Response) {
         // If login or register is requested.
