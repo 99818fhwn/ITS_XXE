@@ -25,6 +25,7 @@ export class Server {
         this.app.use(this.logRequest.bind(this));                              // http://expressjs.com/en/guide/writing-middleware.html
         this.app.use(bodyParser.text().bind(this));
         //this.app.use(this.authorize.bind(this));
+        this.app.use(this.authorize.bind(this));
         //this.app.use("/revalidate/:token", this.logInStillValid.bind(this));
         this.app.get("/login/:usr.:pwd", this.loginRequest.bind(this));
         this.app.get("/register/:usr.:pwd", this.registerRequest.bind(this));
