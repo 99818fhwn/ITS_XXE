@@ -22,8 +22,6 @@ export class Server {
         this.dateTime = new Date();
         connection.connect();
 
-        console.log(1);
-
         this.app.use(express.static(path.join(__dirname, "SmartHomeUI/dist/SmartHomeUI")));  // http://expressjs.com/en/starter/static-files.html
         this.app.use(this.logRequest.bind(this));                              // http://expressjs.com/en/guide/writing-middleware.html
         this.app.use(bodyParser.text().bind(this));
@@ -34,9 +32,7 @@ export class Server {
         this.app.get("/register/:usr.:pwd", this.registerRequest.bind(this));
         this.app.get("/mainpage/users", this.getUsers.bind(this));
         this.app.delete("/mainpage/users/delete/:userid", this.deleteUsers.bind(this));
-
         this.app.post("/products/:fridgeid", this.productsRequest.bind(this));
-
         this.app.get("/isOn/:fridgeid.:isOn", this.isOnRequest.bind(this));
         this.app.get("/setTemperature/:fridgeid.:temp", this.setTemperatureRequest.bind(this));
         // this.app.get("/logout", this.logoutRequest.bind(this));
@@ -242,7 +238,6 @@ export class Server {
                 }
             }
         });
-        //connection.end();
     }
 
     public doubleQuote(input): string {
@@ -288,9 +283,6 @@ export class Server {
     private deleteUsers(req: express.Request, res: express.Response) {
         // If login or register is requested.
         console.log("deleting:");
-
-
-        console.log(1);
         var userid = req.params.userid;
 
         var tokens = this.doubleQuote(req.header("Authorization"));
@@ -333,9 +325,6 @@ export class Server {
         // If login or register is requested.
         console.log("editing:");
 
-
-
-        console.log(1);
         var tokens = this.doubleQuote(req.header("Authorization"));
 
         if (req.header("Authorization") == null) {
