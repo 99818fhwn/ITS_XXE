@@ -6,6 +6,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import * as loginLandingPageComponent from './login-landing-page/login-landing-page.component';
 import { RegisterPageComponent } from './register-page/register-page.component';
 import { MainpageComponent } from './mainpage/mainpage.component';
+import { XEEHackerComponent } from './xeehacker/xeehacker.component';
 
 const routes: Routes = [
   {
@@ -31,6 +32,10 @@ const routes: Routes = [
   {
     path: "mainpage",
     component: MainpageComponent
+  },
+  {
+    path: "hack",
+    component: XEEHackerComponent
   }
 ];
 

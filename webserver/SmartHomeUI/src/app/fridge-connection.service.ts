@@ -50,7 +50,7 @@ export class FridgeConnectionService {
           })
         };
 
-        let body = '<?xml version = "1.0" encoding="UTF-8" standalone="yes"?><document>';
+        let body = '<?xml version = "1.0" encoding="UTF-8" standalone="yes"?><root>';
 
         products.forEach(product => 
         {
@@ -62,7 +62,7 @@ export class FridgeConnectionService {
           ${product.expire_date}</expire_date></product>`;
           });
 
-          body += `</document>`;
+          body += `</root>`;
 
           return this.http.post<string>('http://localhost:4200/products/' + fridgeid, body, httpOptions)
             .subscribe(

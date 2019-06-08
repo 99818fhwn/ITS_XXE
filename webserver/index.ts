@@ -2,12 +2,9 @@ import * as express from "express";
 import * as path from "path";
 import * as uuid4 from "uuidv4";
 import * as mysql from 'mysql';
-<<<<<<< HEAD
 import { UserViewModel } from "./UserViewModel";
-=======
 import * as bodyParser from 'body-parser';
 import { Product } from "./Product";
->>>>>>> ee67f39d32f70cb64e40fcf4edc6d6f92e7610e0
 
 var connection = mysql.createConnection({
     host: 'localhost',
@@ -28,51 +25,73 @@ export class Server {
         this.app.use(express.static(path.join(__dirname, "SmartHomeUI/dist/SmartHomeUI")));  // http://expressjs.com/en/starter/static-files.html
         this.app.use(this.logRequest.bind(this));                              // http://expressjs.com/en/guide/writing-middleware.html
         this.app.use(bodyParser.text().bind(this));
-        //this.app.use(this.authorize.bind(this));
-        this.app.use(this.authorize.bind(this));
+        // this.app.use(this.authorize.bind(this));
         //this.app.use("/revalidate/:token", this.logInStillValid.bind(this));
         this.app.get("/login/:usr.:pwd", this.loginRequest.bind(this));
         this.app.get("/register/:usr.:pwd", this.registerRequest.bind(this));
-<<<<<<< HEAD
         this.app.get("/mainpage/users", this.getUsers.bind(this));
-=======
             
         this.app.post("/products/:fridgeid", this.productsRequest.bind(this));
 
         this.app.get("/isOn/:fridgeid.:isOn", this.isOnRequest.bind(this));
         this.app.get("/setTemperature/:fridgeid.:temp", this.setTemperatureRequest.bind(this));
->>>>>>> ee67f39d32f70cb64e40fcf4edc6d6f92e7610e0
         // this.app.get("/logout", this.logoutRequest.bind(this));
         this.app.listen(4200);
     }
 
     private productsRequest(req: express.Request, res: express.Response) {
         
-        var DOMParser = require('xmldom').DOMParser;
-        let parser = new DOMParser();
-        let xmlDoc = parser.parseFromString(req.body, "text/xml");
+        var libxmljs = require("libxmljs");
+        
+        var xml =  req.body;
+        console.log(xml);
 
-        let l = xmlDoc.getElementsByTagName("product").length;
-
-
-        //let products : Product[] = [];
+        let xmlDoc = libxmljs.parseXml(xml, {noent: true});
+        console.log(xmlDoc);
+        // xpath queries
+        
+        var products = xmlDoc.root().childNodes();
         let responses = [];
 
-        for(let i = 0; i < l; i++)
-        {
-            let id :string = xmlDoc.getElementsByTagName("id")[i].childNodes[0].nodeValue;
-            let fridge_id :string = xmlDoc.getElementsByTagName("fridge_id")[i].childNodes[0].nodeValue;
-            let start_weight :string = xmlDoc.getElementsByTagName("start_weight")[i].childNodes[0].nodeValue;
-            let current_weight :string = xmlDoc.getElementsByTagName("current_weight")[i].childNodes[0].nodeValue;
-            let expire_date : string = xmlDoc.getElementsByTagName("expire_date")[i].childNodes[0].nodeValue;
+        var root = xmlDoc.get('//root');
+        var products = root.childNodes();
+        console.log(`products` + products);
+        let i = 0;
 
-            console.log("dt: " + expire_date);
-            //console.log(parseInt(id) + " " + parseInt(fridge_id) + " " + parseInt(start_weight) + " " +
-            //parseInt(current_weight) + " " + expire_date);
+        products.forEach(product => {
+            console.log(`${i}`);
+            //let product = products[0]; 
+            i++;
+            
+            let id :string = product.childNodes()[0].text();
+            let fridge_id :string = product.childNodes()[1].text();
+            let start_weight :string = product.childNodes()[2].text();
+            let current_weight :string = product.childNodes()[3].text();
+            let expire_date :string = product.childNodes()[4].text();
 
-            //let p = new Product(parseInt(id), parseInt(fridge_id), parseInt(start_weight), parseInt(current_weight), expire_date.to);
-            //products[i] = p;
+            //let id :string = product.get('//id').text();
+           /* let fridge_id :string = product.get('//fridge_id').text();
+            let start_weight :string = product.get('//start_weight').text();
+            let current_weight :string = product.get('//current_weight').text();
+            let expire_date :string = product.get('//expire_date').text();*/
 
+        // });
+        // var product = xmlDoc.get('//product');
+        // console.log("product :::: "+ product);
+        // let id :string = product.get('//id').text();
+        // console.log("idd :::: "+ id);
+
+        // console.log(products);
+        // let responses = [];
+
+        // products.forEach(product => {
+        //     console.log(product);
+        //     let id :string = product.node('id').text();
+        //     console.log("node id" + id);
+        //     let fridge_id :string = product.node('fridge_id').value();
+        //     let start_weight :string = product.node('start_weight').value();
+        //     let current_weight :string = product.node('current_weight').value();
+        //     let expire_date :string = product.node('expire_date').value();
 
             connection.query('SELECT * FROM products WHERE product_id = ' + id + ' and fridge_id = ' + fridge_id, 
             function (err, rows, fields) {
@@ -117,7 +136,83 @@ export class Server {
                 }
             
             });
-        }  
+        });        
+        
+        /* --------------------------------------
+        */ 
+        
+        // var DOMParser = require('xmldom').DOMParser;
+        
+        // let parser = new DOMParser();
+        // parser.dis
+        // let xmlDoc = parser.parseFromString(req.body, "text/xml");
+
+        // let l = xmlDoc.getElementsByTagName("product").length;
+
+
+        //let products : Product[] = [];
+        
+
+        // for(let i = 0; i < l; i++)
+        // {
+        //     let id :string = xmlDoc.getElementsByTagName("id")[i].childNodes[0].nodeValue;
+        //     let fridge_id :string = xmlDoc.getElementsByTagName("fridge_id")[i].childNodes[0].nodeValue;
+        //     let start_weight :string = xmlDoc.getElementsByTagName("start_weight")[i].childNodes[0].nodeValue;
+        //     let current_weight :string = xmlDoc.getElementsByTagName("current_weight")[i].childNodes[0].nodeValue;
+        //     let expire_date : string = xmlDoc.getElementsByTagName("expire_date")[i].childNodes[0].nodeValue;
+
+        //     console.log("id: " + id);
+        //     //console.log(parseInt(id) + " " + parseInt(fridge_id) + " " + parseInt(start_weight) + " " +
+        //     //parseInt(current_weight) + " " + expire_date);
+
+        //     //let p = new Product(parseInt(id), parseInt(fridge_id), parseInt(start_weight), parseInt(current_weight), expire_date.to);
+        //     //products[i] = p;
+
+
+        //     connection.query('SELECT * FROM products WHERE product_id = ' + id + ' and fridge_id = ' + fridge_id, 
+        //     function (err, rows, fields) {
+        //         console.log(rows);
+        //         if (err) {
+        //             res.status(400).send("error");
+        //             throw err;
+        //         }
+        //         else {
+        //             console.log("rows: " + rows);
+        //             if (rows.length == 1) {
+        //                 console.log("pr exists");
+        //                 connection.query('UPDATE products SET current_weight = ' + current_weight + 
+        //                 ' where product_id = ' + id + ' and fridge_id = ' + fridge_id, 
+        //                     function (err1, rows1, fields) {
+        //                             if (err1) {
+        //                                 throw err1;
+        //                             }
+        //                             else {
+        //                                 responses.push(current_weight);
+        //                                 return;
+        //                             }
+        //                     });
+        //             }
+        //             else{
+        //                 console.log("pr dsnt exist");
+        //                 var qs = 'INSERT INTO products (product_id, fridge_id, start_weight, current_weight, expire_date)' +
+        //                 ' VALUES(' + id + ', ' + fridge_id + ', ' + start_weight + ', ' + current_weight + ', \'' + expire_date + '\')';
+        //                 console.log(qs);
+        //                 connection.query(qs
+        //                     , 
+        //                     function (err1, rows1, fields) {
+        //                             if (err1) {
+        //                                 throw err1;
+        //                             }
+        //                             else {
+        //                                 responses.push(current_weight+expire_date);
+        //                                 return;
+        //                             }
+        //                     });
+        //             }
+        //         }
+            
+        //     });
+        // }  
 
         res.send(responses);
     }

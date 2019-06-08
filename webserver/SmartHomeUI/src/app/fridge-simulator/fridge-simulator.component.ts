@@ -36,7 +36,6 @@ export class FridgeSimulatorComponent implements OnInit
 
       this.products = [p1, p2];
       // send get request to server mit xml doc telling which products it has
-
   }
 
 
