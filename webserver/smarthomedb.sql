@@ -100,7 +100,8 @@ CREATE TABLE `products` (
   `product_id` int(11) NOT NULL,
   `start_weight` int(11) NOT NULL,
   `current_weight` int(11) NOT NULL,
-  `expire_date` date NOT NULL
+  `expire_date` text(500) NOT NULL
+  -- CONSTRAINT product_pk PRIMARY KEY (`fridge_id`, `product_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_general_ci;
 
 --
@@ -175,7 +176,7 @@ ALTER TABLE `homes`
 -- Indizes für die Tabelle `products`
 --
 ALTER TABLE `products`
-  ADD PRIMARY KEY (`product_id`),
+  ADD PRIMARY KEY (`product_id`, `fridge_id`),
   ADD KEY `fridge_id` (`fridge_id`);
 
 --

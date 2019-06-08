@@ -1,4 +1,7 @@
 import { Component, OnInit } from '@angular/core';
+import { FridgeConnectionService } from '../fridge-connection.service';
+import { HttpErrorResponse } from '@angular/common/http';
+import { Product } from 'src/assets/product';
 
 @Component({
   selector: 'app-fridge-simulator',
@@ -14,9 +17,13 @@ export class FridgeSimulatorComponent implements OnInit
   tempSensor: number;
   isOn : boolean;
   products : Product[];
+
+  public connectionError: boolean;
+  public errorMessage: string;
+  public errorStatusText: string;
   
   
-  constructor() 
+  constructor(private fridgeConn: FridgeConnectionService) 
   {
       this.id = 1;
       this.home_id = 1;
@@ -24,8 +31,8 @@ export class FridgeSimulatorComponent implements OnInit
       this.tempSensor  = 12; // random temp
       this.isOn = true;
 
-      let p1 = new Product(1,1,100,56, new Date("2019-10-07")); 
-      let p2 = new Product(2,2,500,456, new Date("2019-07-12"));
+      let p1 = new Product(1,1,100,56, "2019-10-07"); 
+      let p2 = new Product(2,2,500,456, "2019-07-12");
 
       this.products = [p1, p2];
       // send get request to server mit xml doc telling which products it has
@@ -42,25 +49,44 @@ export class FridgeSimulatorComponent implements OnInit
       " Expire date: " + element.expire_date + "\n";
       pr.appendChild(x);
     });
+
+    this.fridgeConn.isOn(this.id, this.isOn).subscribe(
+      data => {
+        // response?
+      },
+
+      error => {
+        this.connectionError = true;
+        if (this.connectionError) {
+          let httpResponseError = <HttpErrorResponse>error;
+          this.errorMessage = httpResponseError.error;
+          this.errorStatusText = httpResponseError.statusText + ": " + httpResponseError.status;
+        }
+      }
+    );
+
+    this.fridgeConn.sendTemperature(this.id, this.tempSensor).subscribe(
+      data => {
+        // response?
+      },
+
+      error => {
+        this.connectionError = true;
+        if (this.connectionError) {
+          let httpResponseError = <HttpErrorResponse>error;
+          this.errorMessage = httpResponseError.error;
+          this.errorStatusText = httpResponseError.statusText + ": " + httpResponseError.status;
+        }
+      }
+    );
+
+    // this.fridgeConn.sendProducts(this.id, this.products).add(
+    //   data => {
+    //     // response?
+    //   },
+    // );
+
+    this.fridgeConn.sendProducts(this.id, this.products);
   }
 
-}
-
-class Product
-{
-    id : number;
-    fridge_id : number;
-    start_weight : number;
-    current_weight : number;
-    expire_date : Date;
-
-    constructor(id : number, fridge_id : number, 
-      start_weight : number, current_weight : number, expire_date : Date) 
-    {
-      this.id = id;
-      this.fridge_id = fridge_id;
-      this.start_weight = start_weight;
-      this.current_weight = current_weight;
-      this.expire_date = expire_date;
-    }
 }
