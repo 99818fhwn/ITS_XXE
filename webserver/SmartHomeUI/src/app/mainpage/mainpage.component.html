@@ -4,16 +4,73 @@
   </div>
   <div class="row">
     Fridges
+    <table [hidden]="isadmin != 1" class="table table-bordered">
+      <thead>
+        <tr>
+          <th>Fridge_ID</th>
+          <th>ISOn</th>
+          <th></th>
+          <th>Temperature</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let fridge of fridges">
+          <td>{{fridge.fridge_id}}</td>
+          <td>{{fridge.is_on}}</td>
+          <td class="text-center">
+            <button *ngIf="fridge.is_on == 0" class="btn btn-secondary" (click)="fridgeOnOff(fridge)">Switch
+              ON</button>
+            <button *ngIf="fridge.is_on == 1" class="btn btn-warning" (click)="fridgeOnOff(fridge)">Switch
+              OFF</button>
+          </td>
+          <td class="text-center">
+            <div class="input-group">
+              <input type="number" class="form-control" placeholder="{{fridge.temperatur}}" aria-label="Temperature"
+                aria-describedby="basic-addon2" min="0" max="20" [(ngModel)]="fridge.temperatur">
+              <div class="input-group-append">
+                <span class="input-group-text" id="basic-addon2">°C</span>
+                <button class="btn btn-outline-secondary"
+                  [disabled]="(+fridge.temperatur < 0 || +fridge.temperatur > 20)" (click)="changeFridgeTemp(fridge)"
+                  type="button">Change
+                  Temperature</button>
+              </div>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
   </div>
   <div class="row">
     Lights
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>Position</th>
+          <th>ISOn</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let light of lights">
+          <td>{{light.light_name}}</td>
+          <td>{{light.is_on}}</td>
+          <td class="text-center">
+            <button *ngIf="light.is_on == 0" class="btn btn-secondary" (click)="flickSwitch(light)">Switch
+              ON</button>
+            <button *ngIf="light.is_on == 1" class="btn btn-warning" (click)="flickSwitch(light)">Switch
+              OFF</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
   </div>
-  <div [hidden]="isadmin == 0" style="width: fit-content" class="row">
+  <div [hidden]="isadmin == 0" class="row">
+    Users:
     <table class="table table-bordered">
       <thead>
         <tr>
           <th>Name</th>
-          <th>Value</th>
+          <th>User_ID</th>
           <th>IsAdmin</th>
           <th></th>
         </tr>
@@ -23,7 +80,7 @@
           <td>{{user.name}}</td>
           <td>{{user.id}}</td>
           <td>{{user.isadmin}}</td>
-          <td><button class="btn btn-danger" (click)="remove(user)">Remove</button></td>
+          <td class="text-center"><button class="btn btn-danger" (click)="remove(user)">Remove</button></td>
         </tr>
       </tbody>
     </table>
@@ -32,9 +89,28 @@
     </small>
   </div>
   <div class="row">
+    Products
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>Product_ID</th>
+          <th>Current Weight</th>
+          <th>Expire_Date</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let product of products">
+          <td>{{product.id}}</td>
+          <td>{{product.current_weight}}</td>
+          <td>{{product.expire_date}}</td>
+          <td class="text-center">
+            <button class="btn btn-success" (click)="order(amount)">Order one Item</button></td>
+        </tr>
+      </tbody>
+    </table>
   </div>
   <div class="row">
-    Products
   </div>
   <div class="row">
     Vorschläge

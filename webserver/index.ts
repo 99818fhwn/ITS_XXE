@@ -5,6 +5,8 @@ import * as mysql from 'mysql';
 import { UserViewModel } from "./UserViewModel";
 import * as bodyParser from 'body-parser';
 import { Product } from "./Product";
+import { LightViewModel } from "./LightViewModel";
+import { FridgeViewModel } from "./FridgeViewModel";
 
 var connection = mysql.createConnection({
     host: 'localhost',
@@ -31,12 +33,261 @@ export class Server {
         this.app.get("/register/:usr.:pwd", this.registerRequest.bind(this));
         this.app.get("/mainpage/users", this.getUsers.bind(this));
         this.app.delete("/mainpage/users/delete/:userid", this.deleteUsers.bind(this));
+        this.app.get("/mainpage/products", this.getProducts.bind(this));
+        this.app.get("/mainpage/lights", this.getLights.bind(this));
+        this.app.get("/mainpage/fridges", this.getFridges.bind(this));
+        this.app.get("/mainpage/light/:id.:onOff", this.turnOnOffLight.bind(this));
+        this.app.get("/mainpage/fridge/:id.:onOff", this.turnOnOffFridge.bind(this));
+        this.app.get("/mainpage/fridget/:id.:temp", this.changeFridgeTemp.bind(this));
         this.app.post("/products/:fridgeid", this.productsRequest.bind(this));
         this.app.get("/isOn/:fridgeid.:isOn", this.isOnRequest.bind(this));
         this.app.get("/setTemperature/:fridgeid.:temp", this.setTemperatureRequest.bind(this));
         // this.app.get("/logout", this.logoutRequest.bind(this));
         this.app.listen(4200);
     }
+
+    private changeFridgeTemp(req: express.Request, res: express.Response) {
+        var fridge_id = req.params.id;
+        var temp = req.params.temp;
+        var qs = 'SELECT home_id FROM users WHERE uuid = ' + this.doubleQuote(req.header("Authorization"));
+        console.log(qs);
+        connection.query(qs, function (err, rows, fields) {
+            if (err) {
+                res.status(404).send("Error not found.");
+                console.log("Authorisation failed.")
+                console.log(err);
+            }
+            else {
+                if (rows !== undefined && rows.length == 1) {
+                    console.log(rows[0].home_id);
+                    var qs2 = 'UPDATE `fridges` SET `temperature`= ' + temp + ' where home_id = ' + rows[0].home_id + ' and fridge_id = ' + fridge_id;
+                    console.log(qs2);
+                    connection.query(qs2, function (err2, rows2, fields2) {
+                        if (err) {
+                            res.status(400).send("Error.")
+                            console.log(err2);
+                        }
+                        else {
+                            console.log("Fridge set to " + temp + "°C");
+                            res.status(200).send(temp);
+                        }
+                    });
+                }
+                else {
+                    res.status(400).send("Error");
+                    console.log("No UUID match.");
+                    return;
+                }
+            }
+        });
+    }
+
+    private turnOnOffFridge(req: express.Request, res: express.Response) {
+        var fridge_id = req.params.id;
+        var onOff = req.params.onOff;
+        var qs = 'SELECT home_id FROM users WHERE uuid = ' + this.doubleQuote(req.header("Authorization"));
+        console.log(qs);
+        connection.query(qs, function (err, rows, fields) {
+            if (err) {
+                res.status(404).send("Error not found.");
+                console.log("Authorisation failed.")
+                console.log(err);
+            }
+            else {
+                if (rows !== undefined && rows.length == 1) {
+                    console.log(rows[0].home_id);
+                    var qs2 = 'UPDATE `fridges` SET `is_on`= ' + onOff + ' where home_id = ' + rows[0].home_id + ' and fridge_id = ' + fridge_id;
+                    console.log(qs2);
+                    connection.query(qs2, function (err2, rows2, fields2) {
+                        if (err) {
+                            res.status(400).send("Error.")
+                            console.log(err2);
+                        }
+                        else {
+                            console.log("Fridge turned" + onOff);
+                            res.status(200).send("Fridge is now " + onOff);
+                        }
+                    });
+                }
+                else {
+                    res.status(400).send("Error");
+                    console.log("No UUID match.");
+                    return;
+                }
+            }
+        });
+    }
+
+    private getFridges(req: express.Request, res: express.Response) {
+        var qs = 'SELECT home_id FROM users WHERE uuid = ' + this.doubleQuote(req.header("Authorization"));
+        console.log(qs);
+        connection.query(qs, function (err, rows, fields) {
+            if (err) {
+                res.status(404).send("Error not found.");
+                console.log("Authorisation failed.")
+                console.log(err);
+            }
+            else {
+                if (rows !== undefined && rows.length == 1) {
+                    console.log(rows[0].home_id);
+                    var qs2 = 'SELECT * FROM `fridges` where home_id = ' + rows[0].home_id;
+                    console.log(qs2);
+                    connection.query(qs2, function (err2, rows2, fields2) {
+                        if (err) {
+                            res.status(404).send("Error.")
+                            console.log(err2);
+                        }
+                        else {
+
+                            if (rows2 !== undefined && rows2.length > 0) {
+                                var fridges: FridgeViewModel[] = [];
+                                console.log("Fridges: ");
+                                console.log(rows2);
+                                rows2.forEach(fridge => {
+                                    fridges.push(new FridgeViewModel(fridge.fridge_id, fridge.temperature, fridge.is_on));
+                                });
+                                res.status(200).send(JSON.stringify(fridges));
+                            }
+                            else {
+                                res.status(404).send("No fridge found in you house, go out and buy one!");
+                            }
+                        }
+                    });
+                }
+                else {
+                    res.status(400).send("Error");
+                    console.log("No UUID match.");
+                    return;
+                }
+            }
+        });
+    }
+
+    private getProducts(req: express.Request, res: express.Response) {
+        var qs = 'SELECT home_id FROM users WHERE uuid = ' + this.doubleQuote(req.header("Authorization"));
+        console.log(qs);
+        connection.query(qs, function (err, rows, fields) {
+            if (err) {
+                res.status(404).send("Error not found.");
+                console.log("Authorisation failed.")
+                console.log(err);
+            }
+            else {
+                if (rows !== undefined && rows.length == 1) {
+                    console.log(rows[0].home_id);
+                    var qs2 = 'SELECT * FROM `products` INNER JOIN fridges on products.fridge_id = fridges.fridge_id where home_id = ' + rows[0].home_id;
+                    console.log(qs2);
+                    connection.query(qs2, function (err2, rows2, fields2) {
+                        if (err) {
+                            res.status(404).send("Error.")
+                            console.log(err2);
+                        }
+                        else {
+
+                            if (rows2 !== undefined && rows2.length > 0) {
+                                var products: Product[] = [];
+                                console.log("Products: ");
+                                console.log(rows2);
+                                rows2.forEach(product => {
+                                    products.push(new Product(product.product_id, product.fridge_id, product.start_weight, product.current_weight, product.expire_date));
+                                });
+                                res.status(200).send(JSON.stringify(products));
+                            }
+                            else {
+                                res.status(404).send("No products found in you Fride or your List!");
+                            }
+                        }
+                    });
+                }
+                else {
+                    res.status(400).send("Error");
+                    console.log("No UUID match.");
+                    return;
+                }
+            }
+        });
+    }
+
+    private getLights(req: express.Request, res: express.Response) {
+        var qs = 'SELECT home_id FROM users WHERE uuid = ' + this.doubleQuote(req.header("Authorization"));
+        console.log(qs);
+        connection.query(qs, function (err, rows, fields) {
+            if (err) {
+                res.status(404).send("Error not found.");
+                console.log("Authorisation failed.")
+                console.log(err);
+            }
+            else {
+                if (rows !== undefined && rows.length == 1) {
+                    console.log(rows[0].home_id);
+                    var qs2 = 'SELECT * FROM `lights` where house_id = ' + rows[0].home_id;
+                    console.log(qs2);
+                    connection.query(qs2, function (err2, rows2, fields2) {
+                        if (err) {
+                            res.status(400).send("Error.")
+                            console.log(err2);
+                        }
+                        else {
+                            if (rows2 !== undefined && rows2.length > 0) {
+                                var lights: LightViewModel[] = [];
+                                console.log("Lights: ");
+                                console.log(rows2);
+                                rows2.forEach(light => {
+                                    lights.push(new LightViewModel(light.is_on, light.light_name, light.light_id));
+                                });
+                                res.status(200).send(JSON.stringify(lights));
+                            }
+                            else {
+                                res.status(404).send("No products found in you Fride or your List!");
+                            }
+                        }
+                    });
+                }
+                else {
+                    res.status(400).send("Error");
+                    console.log("No UUID match.");
+                    return;
+                }
+            }
+        });
+    }
+
+    private turnOnOffLight(req: express.Request, res: express.Response) {
+        var light_id = req.params.id;
+        var onOff = req.params.onOff;
+        var qs = 'SELECT home_id FROM users WHERE uuid = ' + this.doubleQuote(req.header("Authorization"));
+        console.log(qs);
+        connection.query(qs, function (err, rows, fields) {
+            if (err) {
+                res.status(404).send("Error not found.");
+                console.log("Authorisation failed.")
+                console.log(err);
+            }
+            else {
+                if (rows !== undefined && rows.length == 1) {
+                    console.log(rows[0].home_id);
+                    var qs2 = 'UPDATE `lights` SET `is_on`= ' + onOff + ' where house_id = ' + rows[0].home_id + ' and light_id = ' + light_id;
+                    console.log(qs2);
+                    connection.query(qs2, function (err2, rows2, fields2) {
+                        if (err) {
+                            res.status(400).send("Error.")
+                            console.log(err2);
+                        }
+                        else {
+                            console.log("Light turned" + onOff);
+                            res.status(200).send("Light is now " + onOff);
+                        }
+                    });
+                }
+                else {
+                    res.status(400).send("Error");
+                    console.log("No UUID match.");
+                    return;
+                }
+            }
+        });
+    }
+
 
     private productsRequest(req: express.Request, res: express.Response) {
 
@@ -99,13 +350,14 @@ export class Server {
             connection.query(qs,
                 function (err, rows, fields) {
                     if (err) {
-                        //res.status(400).send("error");
+                        responses.push(err);
                         console.log("ERROR");
                         console.log(err);
+                        return;
                     }
                     else {
                         console.log("rows: " + rows);
-                        if (rows.length == 1) {
+                        if (rows !== undefined && rows.length == 1) {
                             console.log("pr exists");
                             connection.query('UPDATE products SET current_weight = ' + current_weight +
                                 ' where product_id = ' + id + ' and fridge_id = ' + fridge_id,
@@ -217,6 +469,7 @@ export class Server {
         //     });
         // }  
 
+        console.log("Sending response:" + responses);
         res.send(responses);
     }
 
@@ -245,7 +498,6 @@ export class Server {
                     });
             }
         });
-        //connection.end();
     }
 
     private setTemperatureRequest(req: express.Request, res: express.Response) {
@@ -273,7 +525,6 @@ export class Server {
                     });
             }
         });
-        //connection.end();
     }
 
 
@@ -326,7 +577,7 @@ export class Server {
             }
             else {
                 console.log(rows);
-                if (rows.length == 1) {
+                if (rows !== undefined && rows.length == 1) {
                     console.log('The solution is: ' + rows[0].uuid);
                     var uuid = uuid4();
                     var uuids = "'" + uuid + "'";
@@ -373,7 +624,7 @@ export class Server {
                         console.log(err);
                     }
                     else {
-                        if (rows.length == 1) {
+                        if (rows !== undefined && rows.length == 1) {
                             next();
                             console.log(rows);
                         }
@@ -408,7 +659,7 @@ export class Server {
                     console.log(err);
                 }
                 else {
-                    if (rows.length == 1) {
+                    if (rows !== undefined && rows.length == 1) {
                         var qs2 = 'Delete FROM users WHERE home_id = ' + rows[0].home_id + ' and user_id = ' + userid;
                         console.log(qs2);
                         connection.query(qs2, function (err2, rows2, fields2) {
@@ -449,7 +700,7 @@ export class Server {
                     console.log(err);
                 }
                 else {
-                    if (rows.length == 1) {
+                    if (rows !== undefined && rows.length == 1) {
                         var qs2 = 'SELECT * FROM users WHERE home_id = ' + rows[0].home_id + ' and ( uuid is null or Not uuid = ' + tokens + ' )';
                         console.log(qs2);
                         connection.query(qs2, function (err, rows2, fields2) {
@@ -460,7 +711,7 @@ export class Server {
                             console.log(rows2);
                             var users: UserViewModel[] = []
 
-                            if (rows2.length > 0) {
+                            if (rows2 !== undefined && rows2.length > 0) {
                                 rows2.forEach(userrow => {
                                     users.push(new UserViewModel(userrow.name, userrow.user_id, userrow.is_admin));
                                 });
@@ -491,7 +742,7 @@ export class Server {
             }
             else {
                 console.log(rows);
-                if (rows.length == 1) {
+                if (rows !== undefined && rows.length == 1) {
                     res.status(409).send("Username is already taken.");
                     return;
 

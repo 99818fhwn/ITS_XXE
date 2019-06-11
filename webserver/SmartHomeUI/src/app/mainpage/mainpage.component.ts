@@ -1,8 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { throwError } from 'rxjs';
 import { UserViewModel } from 'src/assets/UserViewModel';
+import { FormsModule } from "@angular/forms";
 import { UserEditService } from '../user-edit.service';
 import { Router } from '@angular/router';
+import { Product } from 'src/assets/product';
+import { LightViewModel } from 'src/assets/LightViewModel';
+import { dashCaseToCamelCase } from '@angular/animations/browser/src/util';
+import { FridgeViewModel } from 'src/assets/FridgeViewModel';
 
 @Component({
   selector: 'app-mainpage',
@@ -17,6 +22,10 @@ export class MainpageComponent implements OnInit {
   public isadmin: number;
   private userInfo;
   public users: UserViewModel[] = [];
+  public products: Product[] = [];
+  public lights: LightViewModel[] = [];
+  public fridges: FridgeViewModel[] = [];
+  //public tempvalue: Number;
 
   ngOnInit() {
 
@@ -34,16 +43,25 @@ export class MainpageComponent implements OnInit {
       data => {
         this.users = <UserViewModel[]>JSON.parse(data);
       }
+    );
+
+    this.usereditservice.getProducts().subscribe(
+      data => {
+        this.products = <Product[]>JSON.parse(data);
+      }
+    );
+
+    this.usereditservice.getLights().subscribe(
+      data => {
+        this.lights = <LightViewModel[]>JSON.parse(data);
+      }
+    );
+
+    this.usereditservice.getFridges().subscribe(
+      data => {
+        this.fridges = <FridgeViewModel[]>JSON.parse(data);
+      }
     )
-
-    console.log(this.users);
-
-    // this.loginS.login(this.userForm.controls['name'].value, this.userForm.controls['password'].value).subscribe(
-    //   data => {
-    //     var dataarray = data.split("+//+");
-    //     localStorage.setItem('currentUser', JSON.stringify({ token: dataarray[0], name: this.userForm.controls['name'].value, isadmin: dataarray[1] }));
-    //     this.router.navigate(['/mainpage']); ////Insert a routing here.
-    //   },
   }
 
   public remove(user: UserViewModel) {
@@ -55,6 +73,64 @@ export class MainpageComponent implements OnInit {
       this.users.splice(index, 1);
       this.usereditservice.deleteUser(user.id).subscribe(
         data => {
+          console.log(data);
+        }
+      );
+    }
+  }
+
+  public order(amount: Number) {
+    console.log("Try ordering?");
+    return;
+  }
+
+  public changeFridgeTemp(fridge: FridgeViewModel) {
+    console.log(fridge);
+    var temp = +fridge.temperatur;
+    if (temp >= 0 && temp <= 20) {
+      this.usereditservice.patchFridgeTemp(fridge.fridge_id, temp).subscribe(
+        data => {
+          fridge.temperatur = data;
+          console.log(data);
+        }
+      );
+    }
+  }
+
+  public fridgeOnOff(fride: FridgeViewModel) {
+
+    if (fride.is_on == '1') {
+      this.usereditservice.patchFridgeOn(fride.fridge_id, 0).subscribe(
+        data => {
+          fride.is_on = '0';
+          console.log(data);
+        }
+      );
+    }
+    else {
+      this.usereditservice.patchFridgeOn(fride.fridge_id, 1).subscribe(
+        data => {
+          fride.is_on = '1';
+          console.log(data);
+        }
+      );
+    }
+  }
+
+  public flickSwitch(light: LightViewModel) {
+
+    if (light.is_on == '1') {
+      this.usereditservice.patchLight(light.id, 0).subscribe(
+        data => {
+          light.is_on = '0';
+          console.log(data);
+        }
+      );
+    }
+    else {
+      this.usereditservice.patchLight(light.id, 1).subscribe(
+        data => {
+          light.is_on = '1';
           console.log(data);
         }
       );
