@@ -15,6 +15,8 @@ export class XEEHackerComponent implements OnInit {
     this.sendxml();
   }
 
+  public xxePayload: string;
+
   public sendxml() {
     const httpOptions = {
       headers: new HttpHeaders({
@@ -39,6 +41,8 @@ export class XEEHackerComponent implements OnInit {
       + "<expire_date>2</expire_date>"
       + "</product>"
       + "</root>"
+
+    this.xxePayload = body;
 
     return this.http.post<string>('http://localhost:4200/products/' + '1', body, httpOptions)
       .subscribe(

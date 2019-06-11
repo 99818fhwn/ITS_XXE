@@ -2,9 +2,9 @@
   <div class="row">
     Welcome {{username}}
   </div>
-  <div class="row">
+  <div [hidden]="isadmin != 1" class="row">
     Fridges
-    <table [hidden]="isadmin != 1" class="table table-bordered">
+    <table class="table table-bordered">
       <thead>
         <tr>
           <th>Fridge_ID</th>
@@ -65,7 +65,7 @@
     </table>
   </div>
   <div [hidden]="isadmin == 0" class="row">
-    Users:
+    Users
     <table class="table table-bordered">
       <thead>
         <tr>
@@ -111,9 +111,6 @@
     </table>
   </div>
   <div class="row">
-  </div>
-  <div class="row">
-    Vorschläge
   </div>
 </div>
 
