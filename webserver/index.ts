@@ -40,6 +40,7 @@ export class Server {
         this.app.get("/mainpage/fridge/:id.:onOff", this.turnOnOffFridge.bind(this));
         this.app.get("/mainpage/fridget/:id.:temp", this.changeFridgeTemp.bind(this));
         this.app.post("/products/:fridgeid", this.productsRequest.bind(this));
+        this.app.post("/product/:fridgeid", this.getOneProduct.bind(this));
         this.app.get("/isOn/:fridgeid.:isOn", this.isOnRequest.bind(this));
         this.app.get("/setTemperature/:fridgeid.:temp", this.setTemperatureRequest.bind(this));
         // this.app.get("/logout", this.logoutRequest.bind(this));
@@ -288,8 +289,76 @@ export class Server {
         });
     }
 
+    private getOneProduct(req: express.Request, res: express.Response) {
 
-    private async productsRequest(req: express.Request, res: express.Response) {
+        var libxmljs = require("libxmljs");
+
+        var xml = req.body;
+        console.log(xml);
+
+        let xmlDoc = libxmljs.parseXml(xml, { noent: true });
+        console.log(xmlDoc);
+        // xpath queries
+
+        //let products : Product[] = [];
+
+        var root = xmlDoc.get('//root');
+        var product = root;
+        let id: string = product.get("//id").text();
+        let fridge_id: string = product.get("//fridge_id").text();
+        let start_weight: string = product.get("//start_weight").text();
+        let current_weight: string = product.get("//current_weight").text();
+        let expire_date: string = product.get("//expire_date").text();
+
+        var qs = 'SELECT * FROM products WHERE product_id = ' + id + ' and fridge_id = ' + fridge_id;
+        console.log(qs);
+        connection.query(qs,
+            function (err, rows, fields) {
+                if (err) {
+                    res.status(400).send(err);
+                    console.log("ERROR");
+                    console.log(err);
+                    return;
+                }
+                else {
+                    console.log("rows: ");
+                    console.log(rows);
+                    if (rows !== undefined && rows.length == 1) {
+                        console.log("pr exists");
+                        connection.query('UPDATE products SET current_weight = ' + current_weight +
+                            ' where product_id = ' + id + ' and fridge_id = ' + fridge_id,
+                            function (err1, rows1, fields) {
+                                if (err1) {
+                                    console.log(err1);
+                                }
+                                else {
+                                    res.status(200).send("Updated product!");
+                                    return;
+                                }
+                            });
+                    }
+                    else {
+                        console.log("pr dsnt exist");
+                        var qs = 'INSERT INTO products (product_id, fridge_id, start_weight, current_weight, expire_date)' +
+                            ' VALUES(' + id + ', ' + fridge_id + ', ' + start_weight + ', ' + current_weight + ', \'' + expire_date + '\')';
+                        console.log(qs);
+                        connection.query(qs,
+                            function (err1, rows1, fields) {
+                                if (err1) {
+                                    console.log(err1);
+                                }
+                                else {
+                                    res.status(200).send("Inserted product!");
+                                    return;
+                                }
+                            });
+                    }
+                }
+
+            });
+    }
+
+    private productsRequest(req: express.Request, res: express.Response) {
 
         var libxmljs = require("libxmljs");
 
@@ -310,7 +379,7 @@ export class Server {
         console.log(`products` + products);
         let i = 0;
 
-        await products.forEach(product => {
+        products.forEach(product => {
             console.log(`${i}`);
             //let product = products[0]; 
             i++;
@@ -353,8 +422,7 @@ export class Server {
                             var qs = 'INSERT INTO products (product_id, fridge_id, start_weight, current_weight, expire_date)' +
                                 ' VALUES(' + id + ', ' + fridge_id + ', ' + start_weight + ', ' + current_weight + ', \'' + expire_date + '\')';
                             console.log(qs);
-                            connection.query(qs
-                                ,
+                            connection.query(qs,
                                 function (err1, rows1, fields) {
                                     if (err1) {
                                         console.log(err1);
@@ -429,41 +497,6 @@ export class Server {
             }
         });
     }
-
-
-
-    // private async getProductsFromDB()
-    // {
-    //     let res : Product[];
-
-    //     connection.query('SELECT * FROM products WHERE fridge_id = ' + this.id, function (err, rows, fields) {
-    //         if (err) {
-    //             //res.status(400).send("error");
-    //             throw err;
-    //         }
-    //         else {
-    //             console.log("1");
-    //             console.log("Rows:\n");
-    //             console.log(rows);
-    //             res = rows;
-    //         }
-    //     });
-
-    //     return res;
-    // }
-
-    // private logInStillValid(req: express.Request, res: express.Response) {
-    //     const token = req.params.token;
-
-    //     for (const user of this.registeredUsers) {
-    //         if (user.uuid == token) {
-    //             res.send("true");
-    //             return;
-    //         }
-    //     }
-
-    //     res.send(404);
-    // }
 
     // Checks if users is registered and sends new uuid.
     // example get: http://localhost:4200/login/lisa.password 
