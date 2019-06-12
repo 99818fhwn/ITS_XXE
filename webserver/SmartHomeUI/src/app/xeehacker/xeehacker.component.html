@@ -1,3 +1,15 @@
-<p>
-  xeehacker works!
-</p>
+<div class="container">
+  <div class="row border border-danger rounded bg-light xmlcode">
+    <strong>
+      <code><pre>{{xxePlainCode}}</pre></code>
+    </strong>
+  </div>
+  <div class="row">
+    <button class="btn btn-warning" (click)="sendXXEInjection()">XXE Attack</button>
+  </div>
+  <div [hidden]="xxeResponse == undefined" class="row p-3 border border-danger rounded bg-light">
+    <strong>Res.error.sql:</strong>
+    <br>
+    {{xxeResponse}}
+  </div>
+</div>
