@@ -38,7 +38,7 @@ export class XEEHackerComponent implements OnInit {
       + "<current_weight>1</current_weight>"
       + "<expire_date>2</expire_date>"
       + "</product>"
-      + "</root>"
+      + "</root>";
 
     return this.http.post<string>('http://localhost:4200/products/' + '1', body, httpOptions)
       .subscribe(
